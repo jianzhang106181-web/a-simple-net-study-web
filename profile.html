@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>在线学习 - 个人中心</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="" name="keywords">
+<meta content="个人中心：查看账户信息、我的课程与学习记录。" name="description">
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="static/css/css2.css" rel="stylesheet">
+
+<link href="static/css/all.min.css" rel="stylesheet">
+<link href="static/css/bootstrap-icons.css" rel="stylesheet">
+
+<link href="static/css/animate.min.css" rel="stylesheet">
+<link href="static/css/owl.carousel.min.css" rel="stylesheet">
+
+<link href="static/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="static/css/style.css" rel="stylesheet">
+</head>
+<body data-auth="required">
+
+<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+<span class="sr-only">加载中...</span>
+</div>
+</div>
+
+
+<div id="site-nav"></div>
+
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+<div class="container py-5">
+<div class="row justify-content-center">
+<div class="col-lg-10 col-md-12 col-sm-12 text-center">
+<h1 class="display-3 text-white animated slideInDown">个人中心</h1>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb justify-content-center">
+<li class="breadcrumb-item"><a class="text-white" href="index1.html">首页</a></li>
+<li class="breadcrumb-item"><a class="text-white" href="#">更多页面</a></li>
+<li class="breadcrumb-item text-white active" aria-current="page">个人中心</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="container-xxl py-5">
+<div class="container">
+
+<!-- 用户信息卡（复用 about 图文排版：左侧头像 + 右侧信息） -->
+<div class="row g-5 align-items-center mb-5 wow fadeInUp" data-wow-delay="0.1s">
+<div class="col-lg-3 col-md-4 col-sm-6 wow fadeInUp" data-wow-delay="0.1s" style="min-height: 260px;">
+<div class="position-relative h-100">
+<img class="img-fluid position-absolute w-100 h-100 rounded-circle border border-3 border-primary p-2" id="userAvatarImg" src="static/picture/testimonial-1.jpg" alt="用户头像" style="object-fit: cover;">
+</div>
+</div>
+<div class="col-lg-9 col-md-8 col-sm-12 wow fadeInUp" data-wow-delay="0.3s">
+<h6 class="section-title bg-white text-start text-primary pe-3">我的账户</h6>
+<h1 class="mb-3" id="userName">欢迎回来</h1>
+<p class="mb-1"><i class="fa fa-envelope text-primary me-2"></i><span id="userEmail"></span></p>
+<p class="mb-4"><i class="fa fa-clock text-primary me-2"></i>本次登录时间：<span id="userLoginAt"></span></p>
+<div class="row gy-2 gx-4 mb-4">
+<div class="col-sm-6">
+<p class="mb-0"><i class="fa fa-book-open text-primary me-2"></i>已购课程：<strong id="statCourses">0</strong> 门</p>
+</div>
+<div class="col-sm-6">
+<p class="mb-0"><i class="fa fa-shield-alt text-primary me-2"></i>登录状态：有效</p>
+</div>
+</div>
+<button type="button" id="logoutBtn" class="btn btn-outline-primary py-3 px-5 mt-2"><i class="fa fa-sign-out-alt me-2"></i>退出登录</button>
+</div>
+</div>
+
+<!-- 我的课程 -->
+<div class="wow fadeInUp" data-wow-delay="0.1s">
+<h6 class="section-title bg-white text-start text-primary pe-3">我的课程</h6>
+<h4 class="mb-4">已购 / 已加入的课程</h4>
+
+<!-- 空状态 -->
+<div id="emptyState" class="text-center bg-light rounded p-5 d-none">
+<i class="fa fa-inbox fa-4x text-muted mb-4"></i>
+<h5 class="mb-3">还没有购买任何课程</h5>
+<p class="text-muted mb-4">去课程列表逛逛，挑选一门感兴趣的课程开始学习吧。</p>
+<a href="courses.html" class="btn btn-primary py-3 px-5"><i class="fa fa-arrow-right me-2"></i>去逛课程</a>
+</div>
+
+<!-- 课程列表 -->
+<div class="row g-4" id="myCourseList"></div>
+</div>
+
+</div>
+</div>
+
+
+<div id="site-footer"></div>
+<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+<script src="static/js/jquery-3.4.1.min.js"></script>
+<script src="static/js/bootstrap.bundle.min.js"></script>
+<script src="static/js/wow.min.js"></script>
+<script src="static/js/easing.min.js"></script>
+<script src="static/js/waypoints.min.js"></script>
+<script src="static/js/owl.carousel.min.js"></script>
+<script src="static/js/main.js"></script>
+<script src="static/js/auth.js" data-auth="required"></script>
+<script src="static/js/components.js"></script>
+<script src="static/js/course-data.js"></script>
+<script src="static/js/my-courses.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var esc = MyCourses.escapeHtml;
+    var session = Auth.getSession();
+    if (!session) return; // data-auth="required" 已拦截，这里仅防御
+
+    /* JSON 数据加载（fetch 优先 / 内置兜底）完成后再渲染课程列表 */
+    CourseData.ready.then(function () {
+
+    /* ========== 用户信息 ========== */
+    document.getElementById("userName").textContent =
+        "欢迎回来，" + session.name;
+    document.getElementById("userEmail").textContent = session.email;
+    try {
+        document.getElementById("userLoginAt").textContent =
+            new Date(session.loginAt || Date.now()).toLocaleString("zh-CN");
+    } catch (e) { }
+    // 用学员评价头像做占位头像：按姓名哈希固定选一张
+    var avatars = ["testimonial-1", "testimonial-2", "testimonial-3", "testimonial-4"];
+    var idx = (session.name || " ").charCodeAt(0) % avatars.length;
+    document.getElementById("userAvatarImg").src = "static/picture/" + avatars[idx] + ".jpg";
+
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        Auth.logout();
+        location.href = "index1.html";
+    });
+
+    /* ========== 我的课程（读取 localStorage.my_courses） ========== */
+    var ids = MyCourses.get();
+    var listEl = document.getElementById("myCourseList");
+    var emptyEl = document.getElementById("emptyState");
+    document.getElementById("statCourses").textContent = String(ids.length);
+
+    var validCount = 0;
+    var html = ids.map(function (id) {
+        var course = CourseData.getById(id);
+        if (!course) {
+            // my_courses 里存在脏数据（课程已下架）：展示占位卡，不白屏
+            return '<div class="col-lg-4 col-md-6 col-sm-12">'
+                + '<div class="course-item bg-light">'
+                + '<div class="text-center p-4">'
+                + '<i class="fa fa-exclamation-circle fa-3x text-warning mb-3"></i>'
+                + '<h5>课程已下架</h5>'
+                + '<p class="text-muted small mb-3">该课程（id: ' + esc(id) + '）已不在课程库中</p>'
+                + '<button type="button" class="btn btn-sm btn-outline-danger px-3" data-remove="' + esc(id) + '">移除记录</button>'
+                + "</div></div></div>";
+        }
+        validCount++;
+        var priceText = course.free ? '<span class="badge bg-success px-3 py-2">免费</span>' : "¥" + course.price.toFixed(2);
+        return '<div class="col-lg-4 col-md-6 col-sm-12">'
+            + '<div class="course-item bg-light">'
+            + '<div class="position-relative overflow-hidden">'
+            + '<img class="img-fluid" src="' + esc(course.cover) + '" alt="' + esc(course.title) + '">'
+            + "</div>"
+            + '<div class="text-center p-4">'
+            + '<h3 class="mb-2">' + priceText + "</h3>"
+            + '<h5 class="mb-3">' + esc(course.title) + "</h5>"
+            + '<p class="text-muted small mb-3"><i class="fa fa-user-tie text-primary me-2"></i>' + esc(course.instructor.name)
+            + " · " + CourseData.lessonCount(course) + " 个课时</p>"
+            + '<div class="d-flex justify-content-center gap-2 mb-3">'
+            + '<a href="learn.html?id=' + encodeURIComponent(course.id) + '" class="btn btn-sm btn-primary px-3"><i class="fa fa-play me-1"></i>继续学习</a>'
+            + '<a href="course-detail.html?id=' + encodeURIComponent(course.id) + '" class="btn btn-sm btn-outline-primary px-3">课程详情</a>'
+            + "</div>"
+            + "</div></div></div>";
+    }).join("");
+
+    listEl.innerHTML = html;
+
+    // "移除记录"按钮（处理已下架课程的脏数据）
+    Array.prototype.forEach.call(listEl.querySelectorAll("[data-remove]"), function (btn) {
+        btn.addEventListener("click", function () {
+            MyCourses.remove(btn.getAttribute("data-remove"));
+            location.reload();
+        });
+    });
+
+    if (ids.length === 0 || validCount === 0) {
+        emptyEl.classList.remove("d-none");
+    }
+
+    document.getElementById("spinner").classList.remove("show");
+    }); /* end CourseData.ready.then */
+})();
+</script>
+</body>
+</html>

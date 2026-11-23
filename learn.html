@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>在线学习 - 学习中心</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="" name="keywords">
+<meta content="课程学习中心：视频课节播放、学习进度记录与章节目录。" name="description">
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="static/css/css2.css" rel="stylesheet">
+
+<link href="static/css/all.min.css" rel="stylesheet">
+<link href="static/css/bootstrap-icons.css" rel="stylesheet">
+
+<link href="static/css/animate.min.css" rel="stylesheet">
+<link href="static/css/owl.carousel.min.css" rel="stylesheet">
+
+<link href="static/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+<span class="sr-only">加载中...</span>
+</div>
+</div>
+
+
+<div id="site-nav"></div>
+
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+<div class="container py-5">
+<div class="row justify-content-center">
+<div class="col-lg-10 col-md-12 col-sm-12 text-center">
+<h1 class="display-3 text-white animated slideInDown">学习中心</h1>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb justify-content-center">
+<li class="breadcrumb-item"><a class="text-white" href="index1.html">首页</a></li>
+<li class="breadcrumb-item"><a class="text-white" href="courses.html">课程</a></li>
+<li class="breadcrumb-item text-white active" aria-current="page" id="crumbTitle">学习中心</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="container-xxl py-5">
+<div class="container">
+
+<!-- 课程不存在兜底 -->
+<div id="errorBlock" class="row justify-content-center d-none">
+<div class="col-lg-6 col-md-8 col-sm-10 text-center">
+<div class="bg-light rounded p-5">
+<i class="fa fa-exclamation-circle fa-4x text-warning mb-4"></i>
+<h3 class="mb-3" id="errorTitle">课程不存在</h3>
+<p class="text-muted mb-4" id="errorText"></p>
+<div id="errorActions" class="d-flex justify-content-center gap-3 flex-wrap"></div>
+</div>
+</div>
+</div>
+
+<!-- 学习主体 -->
+<div id="learnWrap" class="row g-4">
+
+<!-- 左侧：章节目录（独立滚动） -->
+<div class="col-lg-3 col-md-12">
+<div class="bg-light rounded p-3" style="position: sticky; top: 100px;">
+<h6 class="mt-2 px-2 text-primary"><i class="fa fa-list-ul me-2"></i>章节目录</h6>
+<p class="px-2 text-muted small mb-2 fw-bold text-truncate" id="courseTitleMini"></p>
+
+<!-- 顶部总进度条：宽度 = completed.length / 总节数，实时计算 -->
+<div class="px-2">
+<div class="progress mb-1" style="height: 8px;">
+<div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
+</div>
+<small class="text-muted d-block mb-2" id="progressText"></small>
+</div>
+
+<!-- 目录独立滚动，视频不跟着滚走 -->
+<div class="accordion" id="chapterList" style="max-height: calc(100vh - 180px); overflow-y: auto;"></div>
+</div>
+</div>
+
+<!-- 右侧：视频播放器 + 当前课节信息 -->
+<div class="col-lg-9 col-md-12">
+<div class="position-relative bg-dark rounded overflow-hidden mb-3">
+<video id="lessonPlayer" class="w-100 d-block" style="aspect-ratio: 16 / 9; background: #000;" controls playsinline preload="metadata"></video>
+
+<!-- 播放器覆盖层：视频缺失/模拟播放/购买提示/全部完成 -->
+<div id="playerOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center" style="background: rgba(0,0,0,.82);">
+<div class="text-center text-white px-3" id="overlayBody"></div>
+</div>
+</div>
+
+<div class="bg-light rounded p-4">
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+<h5 class="mb-0" id="nowTitle">正在加载课时...</h5>
+<span id="nowDoneBadge" class="badge bg-success px-3 py-2 d-none"><i class="fa fa-check me-1"></i>已完成</span>
+</div>
+<small class="text-muted d-block mb-3" id="nowMeta"></small>
+<p class="text-muted small mb-0"><i class="fa fa-lightbulb text-primary me-2"></i>看完当前课时会自动勾选完成并切换到下一节；中途关闭页面会记住播放位置，下次进入自动续播。</p>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+<div id="site-footer"></div>
+<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+<script src="static/js/jquery-3.4.1.min.js"></script>
+<script src="static/js/bootstrap.bundle.min.js"></script>
+<script src="static/js/wow.min.js"></script>
+<script src="static/js/easing.min.js"></script>
+<script src="static/js/waypoints.min.js"></script>
+<script src="static/js/owl.carousel.min.js"></script>
+<script src="static/js/main.js"></script>
+<script src="static/js/auth.js"></script>
+<script src="static/js/components.js"></script>
+<script src="static/js/course-data.js"></script>
+<script src="static/js/my-courses.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var esc = MyCourses.escapeHtml;
+    var VIDEO_SRC = "static/video/demo.mp4"; // 放入真实视频后即走原生播放器；缺失时自动降级为模拟播放
+    var TRIAL_KEY = "ch0-l0";                // 未购买时的试看节
+    var SIM_DUR = 15;                        // 模拟播放时长（秒）
+    var SAVE_GAP = 3000;                     // 节流：距上次保存 > 3 秒才写 localStorage
+
+    var courseId = "";
+    try { courseId = new URLSearchParams(location.search).get("id") || ""; } catch (e) { }
+
+    var video = document.getElementById("lessonPlayer");
+    var overlay = document.getElementById("playerOverlay");
+    var overlayBody = document.getElementById("overlayBody");
+
+    function showError(title, text, actions) {
+        document.getElementById("learnWrap").classList.add("d-none");
+        var block = document.getElementById("errorBlock");
+        block.classList.remove("d-none");
+        document.getElementById("errorTitle").textContent = title;
+        document.getElementById("errorText").textContent = text;
+        document.getElementById("errorActions").innerHTML = actions.map(function (a) {
+            return '<a href="' + a.href + '" class="btn ' + (a.primary ? "btn-primary" : "btn-outline-primary") + ' py-3 px-4">' + esc(a.label) + "</a>";
+        }).join("");
+        document.getElementById("spinner").classList.remove("show");
+    }
+
+    /* ========== ① 登录校验：未登录 → 跳 login（登录后回跳本页） ========== */
+    if (!Auth.isLoggedIn()) {
+        location.replace("login.html?next=" + encodeURIComponent("learn.html?id=" + encodeURIComponent(courseId)));
+        return;
+    }
+
+    /* JSON 数据加载（fetch 优先 / 内置兜底）完成后再进行课程相关校验与渲染 */
+    CourseData.ready.then(function () {
+
+    /* ========== ③ 课程 id 校验：id 不存在 → 本页提示错误（不白屏） ========== */
+    var course = CourseData.getById(courseId);
+    if (!course) {
+        showError(
+            "课程不存在",
+            "您访问的课程可能已下架，或链接地址不正确。请返回课程列表浏览其他精彩课程。",
+            [
+                { label: "返回课程列表", href: "courses.html", primary: true },
+                { label: "去个人中心看看", href: "profile.html", primary: false }
+            ]
+        );
+        return;
+    }
+
+    /* ========== ② 购买校验：未购买 → 跳 course-detail 购买/加入 ========== */
+    var isPurchased = MyCourses.has(courseId);
+    if (!isPurchased) {
+        location.replace("course-detail.html?id=" + encodeURIComponent(courseId));
+        return;
+    }
+
+    /* ========== 进度状态（两层） ========== */
+    var PROGRESS_KEY = "learn_progress_" + courseId;
+    var progress = loadProgress();   // { completed: ["ch0-l0",...], lastKey, lastTime }
+    var currentKey = null;
+    var lastSave = 0;
+    var SIM = null;                  // 模拟播放状态
+    var videoBroken = false;         // 视频文件缺失标记
+
+    function loadProgress() {
+        try {
+            var obj = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "null");
+            if (obj && Array.isArray(obj.completed)) {
+                return {
+                    completed: obj.completed.filter(function (k) { return typeof k === "string"; }),
+                    lastKey: typeof obj.lastKey === "string" ? obj.lastKey : null,
+                    lastTime: typeof obj.lastTime === "number" && obj.lastTime > 0 ? obj.lastTime : 0
+                };
+            }
+        } catch (e) { }
+        return { completed: [], lastKey: null, lastTime: 0 };
+    }
+
+    /* 节流保存：timeupdate 每秒多次触发，距上次保存 > 3 秒才真正写入 */
+    function maybeSave() {
+        if (Date.now() - lastSave > SAVE_GAP) saveProgress();
+    }
+    function saveProgress() {
+        progress.lastKey = currentKey;
+        progress.lastTime = getElapsed();
+        try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) { }
+        lastSave = Date.now();
+    }
+
+    /* ========== 课节唯一 key：ch{章节}-l{课时} ========== */
+    function keyOf(c, l) { return "ch" + c + "-l" + l; }
+    function parseKey(key) {
+        var m = /^ch(\d+)-l(\d+)$/.exec(key);
+        return m ? { c: Number(m[1]), l: Number(m[2]) } : null;
+    }
+    function lessonLabel(key) {
+        var p = parseKey(key);
+        if (!p || !course.chapters[p.c] || !course.chapters[p.c].lessons[p.l]) return null;
+        return course.chapters[p.c].lessons[p.l];
+    }
+
+    /* ========== ⑦ 锁定规则：已购全解锁；未购仅试看节 ========== */
+    function isUnlocked(key) { return isPurchased || key === TRIAL_KEY; }
+    function isCompleted(key) { return progress.completed.indexOf(key) !== -1; }
+    function totalLessons() { return CourseData.lessonCount(course); }
+
+    function getElapsed() { return SIM ? SIM.t : (video.currentTime || 0); }
+
+    function markComplete(key) {
+        if (key && progress.completed.indexOf(key) === -1) {
+            progress.completed.push(key);
+            try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress)); } catch (e) { }
+            renderProgress();
+            renderToc();
+            renderNowBadge();
+        }
+    }
+
+    function findNext(key) {
+        var p = parseKey(key);
+        if (!p) return null;
+        if (course.chapters[p.c] && p.l + 1 < course.chapters[p.c].lessons.length) return keyOf(p.c, p.l + 1);
+        if (p.c + 1 < course.chapters.length && course.chapters[p.c + 1].lessons.length) return keyOf(p.c + 1, 0);
+        return null;
+    }
+
+    /* ========== ⑨ 顶部总进度条：completed.length / 总节数 实时算，不存单独字段 ========== */
+    function renderProgress() {
+        var done = progress.completed.length;
+        var total = totalLessons();
+        var pct = total ? Math.round(done / total * 100) : 0;
+        document.getElementById("progressBar").style.width = pct + "%";
+        document.getElementById("progressText").textContent = "总进度：" + done + " / " + total + " 节（" + pct + "%）";
+    }
+
+    /* ========== 左侧章节目录（Accordion） ========== */
+    function renderToc() {
+        var cur = parseKey(currentKey);
+        var html = course.chapters.map(function (ch, ci) {
+            var open = cur ? ci === cur.c : ci === 0;
+            var items = ch.lessons.map(function (name, li) {
+                var key = keyOf(ci, li);
+                var cls = "list-group-item list-group-item-action border-0 px-2 py-2 text-start";
+                var icon;
+                if (!isUnlocked(key)) {
+                    icon = '<i class="fa fa-lock text-secondary me-2"></i>';
+                } else if (isCompleted(key)) {
+                    icon = '<i class="fa fa-check-circle text-success me-2"></i>';
+                } else if (key === currentKey) {
+                    icon = '<i class="fa fa-play-circle text-primary me-2"></i>';
+                    cls += " active";
+                } else {
+                    icon = '<i class="fa fa-circle text-muted me-2" style="font-size: .6rem;"></i>';
+                }
+                var trial = (!isPurchased && key === TRIAL_KEY) ? '<span class="badge bg-success ms-1">试看</span>' : "";
+                return '<button type="button" class="' + cls + '" data-key="' + key + '">' + icon + esc(name) + trial + "</button>";
+            }).join("");
+            return '<div class="accordion-item">'
+                + '<h2 class="accordion-header" id="tch' + ci + '">'
+                + '<button class="accordion-button py-2 ' + (open ? "" : "collapsed") + '" type="button" data-bs-toggle="collapse" data-bs-target="#tchb' + ci + '">'
+                + '<span class="fw-bold me-2">' + esc(ch.title) + '</span>'
+                + '<small class="text-muted">（' + esc(ch.duration) + " · " + ch.lessons.length + ' 课时）</small>'
+                + "</button></h2>"
+                + '<div id="tchb' + ci + '" class="accordion-collapse collapse' + (open ? " show" : "") + '" aria-labelledby="tch' + ci + '" data-bs-parent="#chapterList">'
+                + '<div class="accordion-body py-1 px-1"><div class="list-group list-group-flush">' + items + "</div></div>"
+                + "</div></div>";
+        }).join("");
+        document.getElementById("chapterList").innerHTML = html;
+    }
+
+    /* ========== 播放器覆盖层 ========== */
+    function hideOverlay() { overlay.classList.add("d-none"); overlay.classList.remove("d-flex"); }
+    function showOverlay(html) { overlayBody.innerHTML = html; overlay.classList.remove("d-none"); overlay.classList.add("d-flex"); }
+
+    /* 视频文件缺失 → 模拟播放入口（同一套进度逻辑） */
+    function showSimOverlay() {
+        var resume = progress.lastKey === currentKey ? progress.lastTime : 0;
+        showOverlay(
+            '<i class="fa fa-video-slash fa-3x text-warning mb-3 d-block"></i>'
+            + '<h5 class="mb-2">未找到演示视频文件</h5>'
+            + '<p class="text-white-50 small mb-3">将视频放到 static/video/demo.mp4 即可使用原生播放器；<br>当前可先进入模拟播放，进度与真实播放完全一致。</p>'
+            + '<button type="button" id="simStartBtn" class="btn btn-primary px-4 py-2"><i class="fa fa-play me-2"></i>进入模拟播放（' + SIM_DUR + ' 秒）</button>'
+        );
+        document.getElementById("simStartBtn").addEventListener("click", function () {
+            hideOverlay();
+            startSim(resume);
+        });
+    }
+
+    /* 无权限时提示购买（自动下一节 / 点击锁定节时触发） */
+    function showPurchaseOverlay() {
+        showOverlay(
+            '<i class="fa fa-lock fa-3x text-warning mb-3 d-block"></i>'
+            + '<h5 class="mb-2">该课时为付费内容</h5>'
+            + '<p class="text-white-50 small mb-3">购买课程后即可解锁全部章节。</p>'
+            + '<a href="course-detail.html?id=' + encodeURIComponent(courseId) + '" class="btn btn-primary px-4 py-2 me-2"><i class="fa fa-shopping-cart me-2"></i>去购买</a>'
+            + '<button type="button" id="overlayBackBtn" class="btn btn-outline-light px-4 py-2">返回</button>'
+        );
+        document.getElementById("overlayBackBtn").addEventListener("click", hideOverlay);
+    }
+
+    /* 全部完成 */
+    function showDoneOverlay() {
+        showOverlay(
+            '<i class="fa fa-trophy fa-3x text-warning mb-3 d-block"></i>'
+            + '<h5 class="mb-2">恭喜！全部课时已完成</h5>'
+            + '<p class="text-white-50 small mb-3">可返回课程页查看其他课程，或重新观看任意课时。</p>'
+            + '<a href="courses.html" class="btn btn-primary px-4 py-2 me-2">返回课程列表</a>'
+            + '<button type="button" id="overlayBackBtn" class="btn btn-outline-light px-4 py-2">重看本节</button>'
+        );
+        document.getElementById("overlayBackBtn").addEventListener("click", function () {
+            hideOverlay();
+            loadLesson(currentKey, { autoplay: true });
+        });
+    }
+
+    /* ========== 模拟播放（与原生 video 事件走同一套逻辑） ========== */
+    function startSim(from) {
+        stopSim();
+        SIM = { t: Math.min(from || 0, SIM_DUR), timer: 0 };
+        SIM.timer = setInterval(function () {
+            SIM.t += 0.25;
+            if (SIM.t >= SIM_DUR) {
+                SIM.t = SIM_DUR;
+                maybeSave();
+                onEnded();
+                return;
+            }
+            maybeSave();
+        }, 250);
+    }
+    function stopSim() {
+        if (SIM) { clearInterval(SIM.timer); SIM = null; }
+    }
+
+    /* ========== 课节切换 ========== */
+    function loadLesson(key, opts) {
+        opts = opts || {};
+        if (!lessonLabel(key)) return;
+        if (!isUnlocked(key)) { showPurchaseOverlay(); return; }
+
+        stopSim();
+        hideOverlay();
+        if (currentKey && currentKey !== key) saveProgress(); // 切走前记住上一节位置
+
+        currentKey = key;
+        var p = parseKey(key);
+        document.getElementById("nowTitle").textContent = lessonLabel(key);
+        document.getElementById("nowMeta").textContent = course.chapters[p.c].title + " · 第 " + (p.l + 1) + " 节 · 共 " + totalLessons() + " 节";
+        renderToc();
+        renderNowBadge();
+
+        if (videoBroken) {
+            /* 视频缺失：直接给出模拟播放入口（保留续播位置） */
+            showSimOverlay();
+            return;
+        }
+
+        video.src = VIDEO_SRC;
+        video.load();
+        video.dataset.pendingPlay = opts.autoplay ? "1" : "";
+        /* ② 视频级进度：lastKey + lastTime → 续播 */
+        if (opts.resume && progress.lastKey === key && progress.lastTime > 3) {
+            video.dataset.resumeAt = String(progress.lastTime);
+        } else {
+            delete video.dataset.resumeAt;
+        }
+    }
+
+    function renderNowBadge() {
+        document.getElementById("nowDoneBadge").classList.toggle("d-none", !isCompleted(currentKey));
+    }
+
+    /* ========== ⑥ 自动下一节：ended → 标记完成 → 找下一节 ========== */
+    function onEnded() {
+        stopSim();
+        markComplete(currentKey);
+        saveProgress();
+        var next = findNext(currentKey);
+        if (!next) { showDoneOverlay(); return; }
+        if (isUnlocked(next)) {
+            loadLesson(next, { autoplay: true });
+        } else {
+            /* 没权限 → 提示购买 */
+            showPurchaseOverlay();
+        }
+    }
+
+    /* ========== 原生 video 事件绑定 ========== */
+    video.addEventListener("loadedmetadata", function () {
+        var r = parseFloat(video.dataset.resumeAt || "0");
+        if (r > 0) { try { video.currentTime = r; } catch (e) { } }
+        if (video.dataset.pendingPlay) {
+            delete video.dataset.pendingPlay;
+            video.play().catch(function () { });
+        }
+    });
+    video.addEventListener("timeupdate", maybeSave);          // 节流保存
+    video.addEventListener("pause", function () { saveProgress(); }); // 暂停强制存
+    video.addEventListener("ended", onEnded);                  // 自动下一节
+    video.addEventListener("error", function () {
+        if (!SIM) { videoBroken = true; showSimOverlay(); }
+    });
+    window.addEventListener("beforeunload", function () {      // 关页强制存
+        if (currentKey) saveProgress();
+    });
+
+    /* 目录点击（事件委托） */
+    document.getElementById("chapterList").addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-key]");
+        if (!btn) return;
+        var key = btn.getAttribute("data-key");
+        if (!isUnlocked(key)) { showPurchaseOverlay(); return; }
+        loadLesson(key, { autoplay: true, resume: progress.lastKey === key });
+    });
+
+    /* ========== 启动 ========== */
+    document.title = "在线学习 - 学习：" + course.title;
+    document.getElementById("crumbTitle").textContent = course.title;
+    document.getElementById("courseTitleMini").textContent = course.title;
+    video.poster = course.cover;
+
+    /* 初始定位：上次看到节（续播），否则第 1 节 */
+    var initKey = progress.lastKey && lessonLabel(progress.lastKey) ? progress.lastKey : "ch0-l0";
+    loadLesson(initKey, { resume: progress.lastKey === initKey, autoplay: false });
+    renderProgress();
+
+    document.getElementById("spinner").classList.remove("show");
+    }); /* end CourseData.ready.then */
+})();
+</script>
+</body>
+</html>

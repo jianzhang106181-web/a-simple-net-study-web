@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>在线学习 - 注册</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="" name="keywords">
+<meta content="注册在线学习平台账号，开启在线学习之旅。" name="description">
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="static/css/css2.css" rel="stylesheet">
+
+<link href="static/css/all.min.css" rel="stylesheet">
+<link href="static/css/bootstrap-icons.css" rel="stylesheet">
+
+<link href="static/css/animate.min.css" rel="stylesheet">
+<link href="static/css/owl.carousel.min.css" rel="stylesheet">
+
+<link href="static/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+<div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+<span class="sr-only">加载中...</span>
+</div>
+</div>
+
+
+<div id="site-nav"></div>
+
+
+<div class="container-fluid bg-primary py-5 mb-5 page-header">
+<div class="container py-5">
+<div class="row justify-content-center">
+<div class="col-lg-10 col-md-12 col-sm-12 text-center">
+<h1 class="display-3 text-white animated slideInDown">用户注册</h1>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb justify-content-center">
+<li class="breadcrumb-item"><a class="text-white" href="index1.html">首页</a></li>
+<li class="breadcrumb-item"><a class="text-white" href="#">更多页面</a></li>
+<li class="breadcrumb-item text-white active" aria-current="page">注册</li>
+</ol>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
+<div class="container">
+<div class="row justify-content-center">
+<div class="col-lg-6 col-md-8 col-sm-10">
+<div class="bg-light rounded p-4 p-sm-5">
+<div class="text-center mb-4">
+<h6 class="section-title bg-white text-center text-primary px-3">注册</h6>
+<h1 class="mb-4">创建新账号</h1>
+</div>
+<div id="regAlert" class="alert d-none" role="alert"></div>
+<form id="registerForm" autocomplete="off" novalidate>
+<div class="form-floating mb-3">
+<input type="text" class="form-control" id="regName" placeholder="您的姓名" minlength="2" maxlength="20" pattern="[\u4e00-\u9fa5A-Za-z0-9_]{2,20}" title="姓名为 2-20 位中文、字母、数字或下划线" required>
+<label for="regName">您的姓名（2-20 位中文/字母/数字）</label>
+</div>
+<div class="form-floating mb-3">
+<input type="email" class="form-control" id="regEmail" placeholder="您的邮箱" required>
+<label for="regEmail">您的邮箱</label>
+</div>
+<div class="form-floating mb-1">
+<input type="password" class="form-control" id="regPassword" placeholder="密码" minlength="8" pattern="(?=.*[A-Za-z])(?=.*\d).{8,}" title="密码至少 8 位，且需同时包含字母和数字" required>
+<label for="regPassword">密码（至少 8 位，需含字母和数字）</label>
+</div>
+<div class="progress mb-1" style="height: 6px;">
+<div id="pwBar" class="progress-bar bg-danger" style="width: 0%;"></div>
+</div>
+<small id="pwHint" class="d-block text-muted mb-3">密码强度：请输入密码</small>
+<div class="form-floating mb-3">
+<input type="password" class="form-control" id="regConfirm" placeholder="确认密码" required>
+<label for="regConfirm">确认密码</label>
+</div>
+<div class="form-check mb-4">
+<input class="form-check-input" type="checkbox" id="regAgree" required>
+<label class="form-check-label" for="regAgree">我已阅读并同意 <a href="#">《服务条款》</a> 与 <a href="#">《隐私政策》</a></label>
+</div>
+<button class="btn btn-primary w-100 py-3" type="submit">注 册</button>
+</form>
+<p class="text-center mt-4 mb-0">已有账号？<a href="login.html" class="text-primary">立即登录</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="site-footer"></div>
+<a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+<script src="static/js/jquery-3.4.1.min.js"></script>
+<script src="static/js/bootstrap.bundle.min.js"></script>
+<script src="static/js/wow.min.js"></script>
+<script src="static/js/easing.min.js"></script>
+<script src="static/js/waypoints.min.js"></script>
+<script src="static/js/owl.carousel.min.js"></script>
+<script src="static/js/main.js"></script>
+<script src="static/js/auth.js" data-auth="guest"></script>
+<script src="static/js/components.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var form = document.getElementById("registerForm");
+    var nameI = document.getElementById("regName");
+    var emailI = document.getElementById("regEmail");
+    var pwI = document.getElementById("regPassword");
+    var pw2I = document.getElementById("regConfirm");
+    var bar = document.getElementById("pwBar");
+    var hint = document.getElementById("pwHint");
+    var alertBox = document.getElementById("regAlert");
+
+    // 从登录页跳回时预填邮箱
+    try {
+        var prefill = new URLSearchParams(location.search).get("email");
+        if (prefill) emailI.value = prefill;
+    } catch (e) { }
+
+    // 输入时清除上一次的自定义错误
+    emailI.addEventListener("input", function () { emailI.setCustomValidity(""); });
+    pw2I.addEventListener("input", function () { pw2I.setCustomValidity(""); });
+
+    // 密码强度条（自定义校验的即时反馈）
+    pwI.addEventListener("input", function () {
+        var s = Auth.passwordStrength(pwI.value);
+        var cls = ["bg-danger", "bg-warning", "bg-info", "bg-primary", "bg-success"][s.score];
+        bar.className = "progress-bar " + cls;
+        bar.style.width = (s.score * 25) + "%";
+        hint.textContent = pwI.value ? ("密码强度：" + s.label) : "密码强度：请输入密码";
+    });
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // 1) HTML5 原生校验（required / minlength / pattern / type=email）
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // 2) 自定义校验：邮箱唯一性
+        if (Auth.emailExists(emailI.value)) {
+            emailI.setCustomValidity("该邮箱已被注册，请直接登录");
+            emailI.reportValidity();
+            return;
+        }
+
+        // 3) 自定义校验：两次密码一致
+        if (pwI.value !== pw2I.value) {
+            pw2I.setCustomValidity("两次输入的密码不一致");
+            pw2I.reportValidity();
+            return;
+        }
+
+        // 4) 数据存储（密码加盐哈希，不存明文）
+        var res = Auth.register({
+            name: nameI.value.trim(),
+            email: emailI.value.trim(),
+            password: pwI.value
+        });
+        if (!res.ok) {
+            emailI.setCustomValidity(res.error);
+            emailI.reportValidity();
+            return;
+        }
+
+        // 5) 注册成功 → 跳转登录页并预填邮箱
+        alertBox.className = "alert alert-success";
+        alertBox.textContent = "注册成功！正在跳转到登录页...";
+        setTimeout(function () {
+            location.href = "login.html?email=" + encodeURIComponent(res.user.email);
+        }, 1200);
+    });
+})();
+</script>
+</body>
+</html>
