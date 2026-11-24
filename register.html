@@ -151,38 +151,41 @@
             return;
         }
 
-        // 2) 自定义校验：邮箱唯一性
-        if (Auth.emailExists(emailI.value)) {
-            emailI.setCustomValidity("该邮箱已被注册，请直接登录");
-            emailI.reportValidity();
-            return;
-        }
-
-        // 3) 自定义校验：两次密码一致
+        // 2) 自定义校验：两次密码一致
         if (pwI.value !== pw2I.value) {
             pw2I.setCustomValidity("两次输入的密码不一致");
             pw2I.reportValidity();
             return;
         }
 
-        // 4) 数据存储（密码加盐哈希，不存明文）
-        var res = Auth.register({
+        // 3) 提交服务端注册（用户名/邮箱唯一性由 MySQL 唯一索引 + 后端校验）
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        alertBox.className = "alert d-none";
+        Auth.register({
             name: nameI.value.trim(),
             email: emailI.value.trim(),
             password: pwI.value
-        });
-        if (!res.ok) {
-            emailI.setCustomValidity(res.error);
-            emailI.reportValidity();
-            return;
-        }
+        }).then(function (res) {
+            if (submitBtn) submitBtn.disabled = false;
+            if (!res.ok) {
+                // 依据服务端返回的出错字段定位输入框（username/email/password）
+                var target = nameI;
+                if (res.field === "email") target = emailI;
+                else if (res.field === "password") target = pwI;
+                target.setCustomValidity(res.error);
+                target.reportValidity();
+                target.setCustomValidity("");
+                return;
+            }
 
-        // 5) 注册成功 → 跳转登录页并预填邮箱
-        alertBox.className = "alert alert-success";
-        alertBox.textContent = "注册成功！正在跳转到登录页...";
-        setTimeout(function () {
-            location.href = "login.html?email=" + encodeURIComponent(res.user.email);
-        }, 1200);
+            // 4) 注册成功 → 跳转登录页并预填邮箱
+            alertBox.className = "alert alert-success";
+            alertBox.textContent = "注册成功！正在跳转到登录页...";
+            setTimeout(function () {
+                location.href = "login.html?email=" + encodeURIComponent(res.user.email);
+            }, 1200);
+        });
     });
 })();
 </script>

@@ -120,8 +120,11 @@
     "use strict";
 
     var esc = MyCourses.escapeHtml;
+
+    /* 会话来自服务端（auth.js 的 Auth.ready），就绪后再渲染 */
+    Auth.ready.then(function () {
     var session = Auth.getSession();
-    if (!session) return; // data-auth="required" 已拦截，这里仅防御
+    if (!session) return; // data-auth="required" 守卫已跳转登录页，这里仅防御
 
     /* JSON 数据加载（fetch 优先 / 内置兜底）完成后再渲染课程列表 */
     CourseData.ready.then(function () {
@@ -132,7 +135,7 @@
     document.getElementById("userEmail").textContent = session.email;
     try {
         document.getElementById("userLoginAt").textContent =
-            new Date(session.loginAt || Date.now()).toLocaleString("zh-CN");
+            new Date(session.loginAt || session.createdAt || Date.now()).toLocaleString("zh-CN");
     } catch (e) { }
     // 用学员评价头像做占位头像：按姓名哈希固定选一张
     var avatars = ["testimonial-1", "testimonial-2", "testimonial-3", "testimonial-4"];
@@ -140,8 +143,9 @@
     document.getElementById("userAvatarImg").src = "static/picture/" + avatars[idx] + ".jpg";
 
     document.getElementById("logoutBtn").addEventListener("click", function () {
-        Auth.logout();
-        location.href = "index1.html";
+        var go = function () { location.href = "index1.html"; };
+        var p = Auth.logout();
+        if (p && typeof p.then === "function") p.then(go); else go();
     });
 
     /* ========== 我的课程（读取 localStorage.my_courses） ========== */
@@ -199,6 +203,7 @@
 
     document.getElementById("spinner").classList.remove("show");
     }); /* end CourseData.ready.then */
+    }); /* end Auth.ready.then */
 })();
 </script>
 </body>

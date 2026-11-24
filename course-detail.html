@@ -169,8 +169,8 @@
         courseId = new URLSearchParams(location.search).get("id") || "";
     } catch (e) { }
 
-    /* JSON 数据加载（fetch 优先 / 内置兜底）完成后再渲染详情 */
-    CourseData.ready.then(function () {
+    /* 课程数据与会话（课程数据 fetch 加载 / 登录态来自服务端）都就绪后再渲染 */
+    Promise.all([CourseData.ready, Auth.ready]).then(function () {
 
     course = CourseData.getById(courseId);
 

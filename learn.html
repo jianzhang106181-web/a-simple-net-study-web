@@ -159,7 +159,8 @@
         document.getElementById("spinner").classList.remove("show");
     }
 
-    /* ========== ① 登录校验：未登录 → 跳 login（登录后回跳本页） ========== */
+    /* ========== ① 登录校验：会话来自服务端，Auth.ready 就绪后判断 ========== */
+    Auth.ready.then(function () {
     if (!Auth.isLoggedIn()) {
         location.replace("login.html?next=" + encodeURIComponent("learn.html?id=" + encodeURIComponent(courseId)));
         return;
@@ -462,6 +463,7 @@
 
     document.getElementById("spinner").classList.remove("show");
     }); /* end CourseData.ready.then */
+    }); /* end Auth.ready.then */
 })();
 </script>
 </body>

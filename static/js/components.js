@@ -127,8 +127,16 @@
         if (logoutLink) {
             logoutLink.addEventListener("click", function (e) {
                 e.preventDefault();
-                if (window.Auth && typeof Auth.logout === "function") Auth.logout();
-                location.reload();
+                var done = false;
+                var go = function () { if (!done) { done = true; location.reload(); } };
+                try {
+                    var p = Auth.logout(); // 服务端销毁会话（异步）
+                    if (p && typeof p.then === "function") p.then(go);
+                    else go();
+                } catch (err) {
+                    go();
+                }
+                setTimeout(go, 2000); // 网络异常兜底
             });
         }
     }
@@ -219,14 +227,24 @@
     }
 
     /* ---------- 挂载 ---------- */
-    var navPh = document.getElementById("site-nav");
-    if (navPh) {
-        navPh.outerHTML = buildNav();
-        bindNavEvents(document);
-    }
+    /* 页脚与登录态无关，立即挂载；导航栏含登录态渲染，等服务端会话（Auth.ready）就绪后再挂载 */
     var footPh = document.getElementById("site-footer");
     if (footPh) {
         footPh.outerHTML = buildFooter();
         bindFooterEvents(document);
+    }
+
+    function mountNav() {
+        var navPh = document.getElementById("site-nav");
+        if (navPh) {
+            navPh.outerHTML = buildNav();
+            bindNavEvents(document);
+        }
+    }
+
+    if (window.Auth && window.Auth.ready && typeof window.Auth.ready.then === "function") {
+        window.Auth.ready.then(mountNav);
+    } else {
+        mountNav(); // 未引入 auth.js 的兜底
     }
 })();
